@@ -10,12 +10,10 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
 import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
-import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.util.GridViewHelper;
 
 import java.util.Collection;
@@ -27,7 +25,6 @@ class ImageSearchResultAdapter extends BaseAdapter {
 
     @Inject              LayoutInflater mLayoutInflater;
     @Inject              Picasso        mPicasso;
-    @Inject @ForActivity Bus            mBus;
 
     private ImmutableList<ImageBasicData> mImageSearchResults = ImmutableList.of();
 
@@ -87,14 +84,15 @@ class ImageSearchResultAdapter extends BaseAdapter {
         titleView.setText(imageBasicData.title());
         mPicasso.load(imageBasicData.smallUri()).into(imageView);
 
-        // show the details on click:
-        imageGridElementView.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(final View v) {
-                mBus.post(new ImageSearchActivityEvents.ImageDetailShowEvent(imageBasicData));
-            }
-        });
-
         return imageGridElementView;
+    }
+
+    @Override public boolean areAllItemsEnabled() {
+        return true;  // yes, there's no separator
+    }
+
+    @Override public boolean isEnabled(final int position) {
+        return true;  // no item is a separator so all of them are enabled
     }
 
 }

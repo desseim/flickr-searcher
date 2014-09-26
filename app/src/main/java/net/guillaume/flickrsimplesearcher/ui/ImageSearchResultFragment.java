@@ -2,17 +2,22 @@ package net.guillaume.flickrsimplesearcher.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.squareup.otto.Bus;
 
 import net.guillaume.flickrsimplesearcher.BaseFragment;
 import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
+import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 
 import java.util.List;
 
@@ -23,6 +28,7 @@ public class ImageSearchResultFragment extends BaseFragment {
     private static final String ARGUMENT_KEY_RESULT_DATA = "ImageSearchResultFragment.result_data";
 
     @Inject ImageSearchResultAdapter mImageSearchResultAdapter;
+    @Inject @ForActivity Bus mBus;
 
     public static ImageSearchResultFragment create(final List<ImageBasicData> imageBasicData) {
         final ImageSearchResultFragment imageSearchResultFragment = new ImageSearchResultFragment();
@@ -49,6 +55,13 @@ public class ImageSearchResultFragment extends BaseFragment {
             final GridView gridView = (GridView) rootView.findViewById(R.id.grid_view);
             Preconditions.checkNotNull(gridView, "Didn't find grid view");
             gridView.setAdapter(mImageSearchResultAdapter);
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+                    final ImageBasicData imageBasicData = mImageSearchResultAdapter.getItem(position);
+                    mBus.post(new ImageSearchActivityEvents.ImageDetailShowEvent(imageBasicData));
+                }
+            });
         }
     }
 
