@@ -12,7 +12,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#BBEEEEEE"
+        android:background="#BB222222"
         android:layout_marginTop="5dp" >
         <SearchView
             android:id="@+id/image_search_view"
