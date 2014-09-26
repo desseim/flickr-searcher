@@ -31,8 +31,12 @@ public class ImageSearchController {
     @Inject FlickrService mFlickrService;
     @Inject @Named(NetworkModule.NAME_FLICKR_API_KEY) String mFlickrApiKey;
 
-    public Observable<List<ImageBasicData>> searchImages(final String queryText) {
-        return mFlickrService.searchImages(mFlickrApiKey, queryText)
+    public Observable<List<ImageBasicData>> searchImages(final String queryText, final @Nullable LocationData locationData) {
+        return mFlickrService.searchImages(
+                mFlickrApiKey,
+                queryText,
+                locationData != null ? locationData.latitude() : null,
+                locationData != null ? locationData.longitude() : null)
                 .map(new Func1<ImageSearchResponseEntity, List<ImageBasicData>>() {
                     @Override public List<ImageBasicData> call(final ImageSearchResponseEntity imageSearchResponseEntity) {
                         verifyResponse(imageSearchResponseEntity);

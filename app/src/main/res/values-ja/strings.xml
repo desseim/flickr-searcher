@@ -4,6 +4,7 @@
     <string name="image_search_hint">画像を検索</string>
     <string name="title_activity_image_search_result">Flickrを検索</string>
     <string name="no_result_message">%sに一致する結果はありません</string>
+    <string name="search_near_me">この周辺の撮影のみ</string>
     <string name="start_search_info">↑ 画像を探そう</string>
     <string name="unknown_error_occurred">不明なエラーが発生しました</string>
 </resources>

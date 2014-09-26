@@ -9,13 +9,27 @@
         android:layout_height="match_parent">
     </FrameLayout>
 
-    <SearchView
-        android:id="@+id/image_search_view"
-        android:background="#BBEEEEEE"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:iconifiedByDefault="false"
-        android:focusable="false">
-    </SearchView>
+        android:background="#BBEEEEEE"
+        android:layout_marginTop="5dp" >
+        <SearchView
+            android:id="@+id/image_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:iconifiedByDefault="false"
+            android:focusable="false">
+        </SearchView>
+        <CheckBox
+            android:id="@+id/location_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/search_near_me"
+            android:checked="false"
+            android:enabled="false"
+            android:layout_marginLeft="14dp"
+            android:layout_below="@id/image_search_view"/>
+    </RelativeLayout>
+
 </RelativeLayout>

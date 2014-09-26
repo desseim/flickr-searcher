@@ -1,7 +1,6 @@
 package net.guillaume.flickrsimplesearcher.inject;
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.view.LayoutInflater;

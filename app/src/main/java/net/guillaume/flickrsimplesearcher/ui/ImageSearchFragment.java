@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.SearchView;
 
 import com.google.common.base.Optional;
@@ -16,9 +17,11 @@ import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import net.guillaume.flickrsimplesearcher.BaseFragment;
+import net.guillaume.flickrsimplesearcher.LocationAwareBaseFragment;
+import net.guillaume.flickrsimplesearcher.LocationListener;
 import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
+import net.guillaume.flickrsimplesearcher.data.LocationData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.inject.ForApplication;
 import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
@@ -31,7 +34,7 @@ import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class ImageSearchFragment extends BaseFragment {
+public class ImageSearchFragment extends LocationAwareBaseFragment {
 
     private static final String LOG_TAG                            = ImageSearchFragment.class.getSimpleName();
     private static final String FRAGMENT_TAG_RESULT                = "ImageSearchFragment.fragment_result";
@@ -40,7 +43,10 @@ public class ImageSearchFragment extends BaseFragment {
     @Inject @ForApplication Resources             mApplicationResources;
     @Inject                 ImageSearchController mImageSearchController;
     @Inject @ForActivity    Bus                   mActivityBus;
+    @Inject @ForApplication Bus                   mApplicationBus;
     @Inject                 FragmentManager       mFragmentManager;
+
+    private Optional<LocationData> mLastLocation = Optional.absent();
 
     public ImageSearchFragment() {
     }
@@ -55,6 +61,7 @@ public class ImageSearchFragment extends BaseFragment {
 
         Preconditions.checkNotNull(mActivityBus, "Injection didn't occur yet");
         mActivityBus.register(this);
+        mApplicationBus.register(this);
 
         final View rootView = getView();
         Preconditions.checkNotNull(rootView, "Activity root view not set");
@@ -62,14 +69,17 @@ public class ImageSearchFragment extends BaseFragment {
         // initialize search view
         final SearchView searchView = (SearchView) rootView.findViewById(R.id.image_search_view);
         Preconditions.checkNotNull(searchView, "Didn't find search view");
+        final CheckBox includeLocationView = (CheckBox) rootView.findViewById(R.id.location_check);
+        Preconditions.checkNotNull(includeLocationView, "Didn't find location check view");
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(final String query) {
                 searchView.clearFocus();
 
                 //TODO handle case with HW keyboards: https://code.google.com/p/android/issues/detail?id=24599
+                final boolean includeLocation = includeLocationView.isChecked();
                 mImageSearchController
-                        .searchImages(query)
+                        .searchImages(query, includeLocation ? mLastLocation.orNull() : null)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<List<ImageBasicData>>() {
@@ -102,6 +112,8 @@ public class ImageSearchFragment extends BaseFragment {
                     MessageType.INFO,
                     mApplicationResources.getString(R.string.start_search_info)));
         }
+
+        updateIncludeLocationCheckboxStatus();
     }
 
     @Subscribe public void onImageSearchNewResult(final ImageSearchActivityEvents.ImageSearchNewResultEvent newResultEvent) {
@@ -157,10 +169,25 @@ public class ImageSearchFragment extends BaseFragment {
         }
     }
 
+    @Subscribe public void onLocationChange(final LocationListener.LocationChangeEvent locationChangeEvent) {
+        mLastLocation = locationChangeEvent.getNewLocation();
+        updateIncludeLocationCheckboxStatus();
+    }
+
     @Override public void onDetach() {
         mActivityBus.unregister(this);
+        mApplicationBus.unregister(this);
 
         super.onDetach();
+    }
+
+    private void updateIncludeLocationCheckboxStatus() {
+        final View rootView = getView();
+        if (rootView != null) {
+            final CheckBox includeLocationView = (CheckBox) rootView.findViewById(R.id.location_check);
+            Preconditions.checkNotNull(includeLocationView, "Didn't find the location view");
+            includeLocationView.setEnabled(mLastLocation.isPresent());
+        }
     }
 
 }

@@ -9,11 +9,11 @@ public abstract class LocationData implements Parcelable {
 
     /*package*/ LocationData() { }
 
-    public static LocationData create(final float latitude, final float longitude) {
+    public static LocationData create(final double latitude, final double longitude) {
         return new AutoParcel_LocationData(latitude, longitude);
     }
 
-    public abstract float latitude();
-    public abstract float longitude();
+    public abstract double latitude();
+    public abstract double longitude();
 
 }

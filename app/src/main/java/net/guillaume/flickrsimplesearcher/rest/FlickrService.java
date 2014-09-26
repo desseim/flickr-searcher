@@ -11,7 +11,11 @@ import rx.Observable;
 public interface FlickrService {
 
     @GET("/?method=flickr.photos.search")
-    Observable<ImageSearchResponseEntity> searchImages(@Query("api_key") @Nonnull String apiKey, @Query("text") @Nullable String textToSearch);
+    Observable<ImageSearchResponseEntity> searchImages(
+            @Query("api_key") @Nonnull String apiKey,
+            @Query("text") @Nullable String textToSearch,
+            @Query("lat") @Nullable Double latitude,
+            @Query("lon") @Nullable Double longitude);
 
     @GET("/?method=flickr.photos.getInfo")
     Observable<ImageInfoResponseEntity> getInfo(@Query("api_key") @Nonnull String apiKey, @Query("photo_id") @Nullable String id);

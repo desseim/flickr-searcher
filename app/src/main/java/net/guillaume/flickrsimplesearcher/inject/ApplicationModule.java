@@ -3,10 +3,12 @@ package net.guillaume.flickrsimplesearcher.inject;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.LocationManager;
 
 import com.squareup.otto.Bus;
 
 import net.guillaume.flickrsimplesearcher.BuildConfig;
+import net.guillaume.flickrsimplesearcher.LocationListener;
 
 import javax.inject.Singleton;
 
@@ -16,7 +18,10 @@ import retrofit.RestAdapter;
 import retrofit.converter.Converter;
 import retrofit.converter.SimpleXMLConverter;
 
-@Module(library = true)
+@Module(injects = {
+        LocationListener.class
+},
+        library = true)
 public class ApplicationModule {
 
     private static final String FLICKR_API_REST_ENDPOINT = "https://api.flickr.com/services/rest/";
@@ -36,6 +41,10 @@ public class ApplicationModule {
     }
 
     @Provides @Singleton @ForApplication Bus provideApplicationBus() { return new Bus(); }
+
+    @Provides LocationManager provideLocationManager(final Application application) {
+        return (LocationManager)application.getSystemService(Context.LOCATION_SERVICE);
+    }
 
     @Provides @Singleton RestAdapter provideRestAdapter() {
         return new RestAdapter.Builder()
