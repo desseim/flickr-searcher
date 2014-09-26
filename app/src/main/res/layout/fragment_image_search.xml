@@ -11,7 +11,7 @@
 
     <SearchView
         android:id="@+id/image_search_view"
-        android:background="#88EEEEEE"
+        android:background="#BBEEEEEE"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
