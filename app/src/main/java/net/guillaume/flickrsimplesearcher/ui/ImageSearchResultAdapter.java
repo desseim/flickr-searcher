@@ -14,7 +14,7 @@ import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
 import net.guillaume.flickrsimplesearcher.R;
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.util.GridViewHelper;
 
@@ -27,17 +27,17 @@ class ImageSearchResultAdapter extends BaseAdapter {
 
     @Inject              LayoutInflater mLayoutInflater;
     @Inject              Picasso        mPicasso;
-    @Inject @ForActivity Bus mBus;
+    @Inject @ForActivity Bus            mBus;
 
-    private ImmutableList<ImageData> mImageSearchResults = ImmutableList.of();
+    private ImmutableList<ImageBasicData> mImageSearchResults = ImmutableList.of();
 
     /*package*/
-    synchronized void setData(final @Nonnull Collection<ImageData> data) {
+    synchronized void setData(final @Nonnull Collection<ImageBasicData> data) {
         mImageSearchResults = ImmutableList.copyOf(data);
         notifyDataSetChanged();
     }
 
-    private synchronized ImmutableList<ImageData> getData() {
+    private synchronized ImmutableList<ImageBasicData> getData() {
         return mImageSearchResults;
     }
 
@@ -45,11 +45,11 @@ class ImageSearchResultAdapter extends BaseAdapter {
         return getData().size();
     }
 
-    @Override public ImageData getItem(final int position) {
-        final ImmutableList<ImageData> imageData = getData();
-        Preconditions.checkNotNull(imageData, "Tried to get the item at position " + position + " while no data is currently set");
-        Preconditions.checkElementIndex(position, imageData.size());
-        return imageData.get(position);
+    @Override public ImageBasicData getItem(final int position) {
+        final ImmutableList<ImageBasicData> imageBasicData = getData();
+        Preconditions.checkNotNull(imageBasicData, "Tried to get the item at position " + position + " while no data is currently set");
+        Preconditions.checkElementIndex(position, imageBasicData.size());
+        return imageBasicData.get(position);
     }
 
     @Override public boolean hasStableIds() {
@@ -82,15 +82,15 @@ class ImageSearchResultAdapter extends BaseAdapter {
         Preconditions.checkNotNull(titleView, "Image view not found");
 
         // populate the view with data
-        final ImageData imageData = getItem(position);
-        Preconditions.checkNotNull(imageData);
-        titleView.setText(imageData.title());
-        mPicasso.load(imageData.smallUri()).into(imageView);
+        final ImageBasicData imageBasicData = getItem(position);
+        Preconditions.checkNotNull(imageBasicData);
+        titleView.setText(imageBasicData.title());
+        mPicasso.load(imageBasicData.smallUri()).into(imageView);
 
         // show the details on click:
         imageGridElementView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(final View v) {
-                mBus.post(new ImageSearchActivityEvents.ImageDetailShowEvent(imageData));
+                mBus.post(new ImageSearchActivityEvents.ImageDetailShowEvent(imageBasicData));
             }
         });
 

@@ -4,22 +4,22 @@ import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 
 import java.util.List;
 
 /*package*/ class ImageSearchActivityEvents {
 
     /*package*/ static class ImageSearchNewResultEvent {
-        private final String          mQueryString;
-        private final List<ImageData> mResults;
+        private final String               mQueryString;
+        private final List<ImageBasicData> mResults;
 
-        public ImageSearchNewResultEvent(final String queryString, final List<ImageData> results) {
+        public ImageSearchNewResultEvent(final String queryString, final List<ImageBasicData> results) {
             mQueryString = queryString;
             mResults = results;
         }
 
-        public List<ImageData> getResults() {
+        public List<ImageBasicData> getResults() {
             return mResults;
         }
 
@@ -59,13 +59,13 @@ import java.util.List;
     }
 
     /*package*/ static class ImageDetailShowEvent {
-        private final ImageData mImageToShow;
+        private final ImageBasicData mImageToShow;
 
-        public ImageDetailShowEvent(final ImageData imageToShow) {
+        public ImageDetailShowEvent(final ImageBasicData imageToShow) {
             mImageToShow = imageToShow;
         }
 
-        public ImageData getImageToShow() {
+        public ImageBasicData getImageToShow() {
             return mImageToShow;
         }
     }

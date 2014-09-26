@@ -18,7 +18,7 @@ import com.squareup.otto.Subscribe;
 
 import net.guillaume.flickrsimplesearcher.BaseFragment;
 import net.guillaume.flickrsimplesearcher.R;
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.inject.ForApplication;
 import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
@@ -72,7 +72,7 @@ public class ImageSearchFragment extends BaseFragment {
                         .searchImages(query)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<List<ImageData>>() {
+                        .subscribe(new Observer<List<ImageBasicData>>() {
                             @Override public void onCompleted() {
                                 // nothing to do here
                             }
@@ -82,9 +82,9 @@ public class ImageSearchFragment extends BaseFragment {
                                 mActivityBus.post(new ImageSearchActivityEvents.ImageSearchFailedEvent(exception));
                             }
 
-                            @Override public void onNext(final List<ImageData> imageData) {
+                            @Override public void onNext(final List<ImageBasicData> imageBasicData) {
                                 // this one isn't a UI event, so just use the event bus directly:
-                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchNewResultEvent(query, imageData));
+                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchNewResultEvent(query, imageBasicData));
                             }
                         });
 
@@ -105,7 +105,7 @@ public class ImageSearchFragment extends BaseFragment {
     }
 
     @Subscribe public void onImageSearchNewResult(final ImageSearchActivityEvents.ImageSearchNewResultEvent newResultEvent) {
-        final List<ImageData> results = newResultEvent.getResults();
+        final List<ImageBasicData> results = newResultEvent.getResults();
 
         if (results.size() > 0) {  // there are results ; go back to the result fragment and update it, or create one
             mFragmentManager.popBackStack(FRAGMENT_BACKSTACK_TAG_SHOW_DETAIL, FragmentManager.POP_BACK_STACK_INCLUSIVE);

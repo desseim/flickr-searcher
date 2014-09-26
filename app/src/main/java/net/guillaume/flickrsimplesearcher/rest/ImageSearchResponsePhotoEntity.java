@@ -2,7 +2,7 @@ package net.guillaume.flickrsimplesearcher.rest;
 
 import android.net.Uri;
 
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
@@ -26,8 +26,9 @@ import org.simpleframework.xml.Root;
     @Attribute boolean isfriend;
     @Attribute boolean isfamily;
 
-    /*package*/ ImageData toImageData() {
-        return ImageData.create(
+    /*package*/ ImageBasicData toImageData() {
+        return ImageBasicData.create(
+                id,
                 title,
                 buildThumbnailUri(),
                 buildSmallUri(),

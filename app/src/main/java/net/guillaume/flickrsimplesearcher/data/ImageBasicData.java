@@ -8,17 +8,19 @@ import javax.annotation.Nonnull;
 import auto.parcel.AutoParcel;
 
 @AutoParcel
-public abstract class ImageData implements Parcelable {
+public abstract class ImageBasicData implements Parcelable {
 
-    /*package*/ ImageData() { }  // hide constructor to force use of static instance creation method
+    /*package*/ ImageBasicData() { }  // hide constructor to force use of static instance creation method
 
-    public static ImageData create(
+    public static ImageBasicData create(
+            final @Nonnull String id,
             final @Nonnull String title,
             final @Nonnull Uri thumbnailUri,
             final @Nonnull Uri smallUri,
             final @Nonnull Uri largeUri
     ) {
-        return new AutoParcel_ImageData(
+        return new AutoParcel_ImageBasicData(
+                id,
                 title,
                 thumbnailUri,
                 smallUri,
@@ -26,6 +28,7 @@ public abstract class ImageData implements Parcelable {
         );
     }
 
+    public abstract String id();
     public abstract String title();
     public abstract Uri thumbnailUri();
     public abstract Uri smallUri();

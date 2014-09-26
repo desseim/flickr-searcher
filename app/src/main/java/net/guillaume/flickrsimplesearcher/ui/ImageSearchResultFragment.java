@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 
 import net.guillaume.flickrsimplesearcher.BaseFragment;
 import net.guillaume.flickrsimplesearcher.R;
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 
 import java.util.List;
 
@@ -24,10 +24,10 @@ public class ImageSearchResultFragment extends BaseFragment {
 
     @Inject ImageSearchResultAdapter mImageSearchResultAdapter;
 
-    public static ImageSearchResultFragment create(final List<ImageData> imageData) {
+    public static ImageSearchResultFragment create(final List<ImageBasicData> imageBasicData) {
         final ImageSearchResultFragment imageSearchResultFragment = new ImageSearchResultFragment();
         final Bundle arguments = new Bundle();
-        arguments.putParcelableArrayList(ARGUMENT_KEY_RESULT_DATA, Lists.newArrayList(imageData));
+        arguments.putParcelableArrayList(ARGUMENT_KEY_RESULT_DATA, Lists.newArrayList(imageBasicData));
 
         imageSearchResultFragment.setArguments(arguments);
         return imageSearchResultFragment;
@@ -41,7 +41,7 @@ public class ImageSearchResultFragment extends BaseFragment {
     @Override public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mImageSearchResultAdapter.setData(getArguments().<ImageData>getParcelableArrayList(ARGUMENT_KEY_RESULT_DATA));
+        mImageSearchResultAdapter.setData(getArguments().<ImageBasicData>getParcelableArrayList(ARGUMENT_KEY_RESULT_DATA));
 
         // initialize grid view
         final View rootView = getView();
@@ -52,7 +52,7 @@ public class ImageSearchResultFragment extends BaseFragment {
         }
     }
 
-    /*package*/ void updateResultData(final List<ImageData> newResultData) {
+    /*package*/ void updateResultData(final List<ImageBasicData> newResultData) {
         getArguments().putParcelableArrayList(ARGUMENT_KEY_RESULT_DATA, Lists.newArrayList(newResultData));
 
         if (mImageSearchResultAdapter != null) {

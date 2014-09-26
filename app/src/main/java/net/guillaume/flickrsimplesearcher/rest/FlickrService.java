@@ -13,4 +13,7 @@ public interface FlickrService {
     @GET("/?method=flickr.photos.search")
     Observable<ImageSearchResponseEntity> searchImages(@Query("api_key") @Nonnull String apiKey, @Query("text") @Nullable String textToSearch);
 
+    @GET("/?method=flickr.photos.getInfo")
+    Observable<ImageInfoResponseEntity> getInfo(@Query("api_key") @Nonnull String apiKey, @Query("photo_id") @Nullable String id);
+
 }

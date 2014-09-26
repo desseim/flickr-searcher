@@ -4,7 +4,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
+import net.guillaume.flickrsimplesearcher.data.ImageInfoData;
 import net.guillaume.flickrsimplesearcher.inject.NetworkModule;
 
 import java.util.List;
@@ -24,33 +25,47 @@ public class ImageSearchController {
     @Inject FlickrService mFlickrService;
     @Inject @Named(NetworkModule.NAME_FLICKR_API_KEY) String mFlickrApiKey;
 
-    public Observable<List<ImageData>> searchImages(final String queryText) {
+    public Observable<List<ImageBasicData>> searchImages(final String queryText) {
         return mFlickrService.searchImages(mFlickrApiKey, queryText)
-                .map(new Func1<ImageSearchResponseEntity, List<ImageData>>() {
-                    @Override public List<ImageData> call(final ImageSearchResponseEntity imageSearchResponseEntity) {
-                        Preconditions.checkNotNull(imageSearchResponseEntity.stat, "Response status absent or not parsed");
-                        if (imageSearchResponseEntity.stat.equals("fail")) {
-                            final ImageSearchResponseErrorEntity errorEntity = imageSearchResponseEntity.err;
-                            switch (errorEntity.code) {
-                                case API_ERROR_CODE_INVALID_API_KEY:
-                                    throw new FlickrRestErrorInvalidApiKey();
-                                case API_ERROR_CODE_METHOD_NOT_FOUND:
-                                    throw new FlickrRestErrorMethodNotFound();
-                                default:
-                                    throw new FlickrRestErrorGenericError(errorEntity.code, errorEntity.msg);
+                .map(new Func1<ImageSearchResponseEntity, List<ImageBasicData>>() {
+                    @Override public List<ImageBasicData> call(final ImageSearchResponseEntity imageSearchResponseEntity) {
+                        verifyResponse(imageSearchResponseEntity);
+
+                        Preconditions.checkNotNull(imageSearchResponseEntity.photos, "No photos in valid response");
+                        return Lists.transform(imageSearchResponseEntity.photos, new Function<ImageSearchResponsePhotoEntity, ImageBasicData>() {
+                            @Nullable @Override public ImageBasicData apply(@Nullable final ImageSearchResponsePhotoEntity input) {
+                                return input != null ? input.toImageData() : null;
                             }
-                        } else if (imageSearchResponseEntity.stat.equals("ok")) {
-                            Preconditions.checkNotNull(imageSearchResponseEntity.photos, "No photos in valid response");
-                            return Lists.transform(imageSearchResponseEntity.photos, new Function<ImageSearchResponsePhotoEntity, ImageData>() {
-                                @Nullable @Override public ImageData apply(@Nullable final ImageSearchResponsePhotoEntity input) {
-                                    return input != null ? input.toImageData() : null;
-                                }
-                            });
-                        } else {
-                            throw new RuntimeException("Unknown response status: " + imageSearchResponseEntity.stat);
-                        }
+                        });
                     }
                 });
     }
 
+    public Observable<ImageInfoData> getImageInfo(final String imageId) {
+        return mFlickrService.getInfo(mFlickrApiKey, imageId)
+                .map(new Func1<ImageInfoResponseEntity, ImageInfoData>() {
+                    @Override public ImageInfoData call(final ImageInfoResponseEntity imageInfoResponseEntity) {
+                        verifyResponse(imageInfoResponseEntity);
+
+                        return imageInfoResponseEntity.photo.toImageInfoData();
+                    }
+                });
+    }
+
+    private void verifyResponse(final FlickrRestResponseEntity responseEntity) {
+        Preconditions.checkNotNull(responseEntity.getStat(), "Response status absent or not parsed");
+        if (responseEntity.getStat().equals("fail")) {
+            final FlickrRestResponseErrorEntity errorEntity = responseEntity.getError();
+            switch (errorEntity.code) {
+                case API_ERROR_CODE_INVALID_API_KEY:
+                    throw new FlickrRestErrorInvalidApiKey();
+                case API_ERROR_CODE_METHOD_NOT_FOUND:
+                    throw new FlickrRestErrorMethodNotFound();
+                default:
+                    throw new FlickrRestErrorGenericError(errorEntity.code, errorEntity.msg);
+            }
+        } else if (!responseEntity.getStat().equals("ok")) {
+            throw new RuntimeException("Unknown response status: " + responseEntity.getStat());
+        }
+    }
 }
