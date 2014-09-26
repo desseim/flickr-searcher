@@ -2,6 +2,7 @@ package net.guillaume.flickrsimplesearcher.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import net.guillaume.flickrsimplesearcher.BaseFragment;
 import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.util.TextViewHelper;
 
 import javax.inject.Inject;
 
@@ -48,6 +50,25 @@ public class ImageSearchDetailFragment extends BaseFragment {
 
             mPicasso.load(imageData.largeUri()).into(imageView);
             titleView.setText(imageData.title());
+
+            titleView.setOnClickListener(new View.OnClickListener() {
+                private int mPreviousMaxLines = Integer.MAX_VALUE;
+                private TextUtils.TruncateAt mPreviousEllipsize = null;
+
+                @Override public void onClick(final View v) {
+                    // toggles between showing the full text and just a few lines
+
+                    final TextView textView = (TextView) v;
+                    final int maxLines = TextViewHelper.getTextViewMaxLinesCompatible(textView);
+                    final TextUtils.TruncateAt ellipsize = textView.getEllipsize();
+
+                    textView.setMaxLines(mPreviousMaxLines);
+                    textView.setEllipsize(mPreviousEllipsize);
+
+                    mPreviousMaxLines = maxLines;
+                    mPreviousEllipsize = ellipsize;
+                }
+            });
         }
     }
 }
