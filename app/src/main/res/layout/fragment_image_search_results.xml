@@ -9,8 +9,12 @@
         android:numColumns="auto_fit"
         android:columnWidth="100dp"
         android:gravity="center"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
+        android:focusable="false"
+        android:listSelector="@android:color/transparent"
         android:stretchMode="columnWidth"
-        android:background="@android:color/white"
+        android:background="@android:color/transparent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </GridView>
