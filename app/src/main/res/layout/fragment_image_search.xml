@@ -2,23 +2,12 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent" android:layout_height="match_parent">
-    <GridView
-        android:id="@+id/grid_view"
-        android:numColumns="auto_fit"
-        android:columnWidth="100dp"
-        android:gravity="center"
-        android:stretchMode="columnWidth"
-        android:background="@android:color/white"
+
+    <FrameLayout
+        android:id="@+id/background_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </GridView>
-
-    <include layout="@layout/image_detail"
-        android:id="@+id/image_detail"
-        android:visibility="gone" />
-
-    <include layout="@layout/message"
-             android:visibility="gone" />
+    </FrameLayout>
 
     <SearchView
         android:id="@+id/image_search_view"

@@ -1,6 +1,5 @@
 package net.guillaume.flickrsimplesearcher.ui;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +10,14 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
 import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageData;
+import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.util.GridViewHelper;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -26,11 +25,9 @@ import javax.inject.Inject;
 
 class ImageSearchResultAdapter extends BaseAdapter {
 
-    private static final String SAVED_STATE_PARAM_NAME_IMAGE_SEARCH_RESULTS = "ImageSearchResultAdapter.image_search_results";
-
     @Inject              LayoutInflater mLayoutInflater;
     @Inject              Picasso        mPicasso;
-    @Inject ImageSearchActivityUiActionHandler mUiActionHandler;
+    @Inject @ForActivity Bus mBus;
 
     private ImmutableList<ImageData> mImageSearchResults = ImmutableList.of();
 
@@ -42,30 +39,6 @@ class ImageSearchResultAdapter extends BaseAdapter {
 
     private synchronized ImmutableList<ImageData> getData() {
         return mImageSearchResults;
-    }
-
-    /**
-     * Store the data of this adapter in a bundle.
-     * @param bundle the bundle to store the data into
-     */
-    /*package*/ void saveDataToBundle(final @Nonnull Bundle bundle) {
-        bundle.putParcelableArrayList(SAVED_STATE_PARAM_NAME_IMAGE_SEARCH_RESULTS, Lists.newArrayList(getData()));
-    }
-
-    /**
-     * Set (initialize) the data of this adapter from a bundle where they have previously been saved.
-     * @param bundle a bundle containing saved data
-     * @return true if some data where restored and set from the bundle, false otherwise (e.g. the bundle didn't contain any saved data)
-     * @see #saveDataToBundle(android.os.Bundle)
-     */
-    /*package*/ boolean setDataFromBundle(final @Nonnull Bundle bundle) {
-        if (bundle.containsKey(SAVED_STATE_PARAM_NAME_IMAGE_SEARCH_RESULTS)) {
-            final ArrayList<ImageData> savedImageSearchResults = bundle.getParcelableArrayList(SAVED_STATE_PARAM_NAME_IMAGE_SEARCH_RESULTS);
-            setData(savedImageSearchResults);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @Override public int getCount() {
@@ -117,7 +90,7 @@ class ImageSearchResultAdapter extends BaseAdapter {
         // show the details on click:
         imageGridElementView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(final View v) {
-                mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ImageDetailShowEvent(imageData));
+                mBus.post(new ImageSearchActivityEvents.ImageDetailShowEvent(imageData));
             }
         });
 

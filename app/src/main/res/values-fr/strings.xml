@@ -5,4 +5,5 @@
     <string name="title_activity_image_search_result">Rechercher dans Flickr</string>
     <string name="no_result_message">Pas de résultat pour %s</string>
     <string name="start_search_info">↑ Cherchez des images</string>
+    <string name="unknown_error_occurred">Une erreur inconnue est survenue</string>
 </resources>

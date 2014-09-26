@@ -11,7 +11,10 @@ import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
 import net.guillaume.flickrsimplesearcher.ui.ImageSearchActivity;
+import net.guillaume.flickrsimplesearcher.ui.ImageSearchDetailFragment;
 import net.guillaume.flickrsimplesearcher.ui.ImageSearchFragment;
+import net.guillaume.flickrsimplesearcher.ui.ImageSearchResultFragment;
+import net.guillaume.flickrsimplesearcher.ui.MessageFragment;
 
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
@@ -22,7 +25,10 @@ import dagger.Provides;
 @Module(
         injects = {
                 ImageSearchActivity.class,
-                ImageSearchFragment.class
+                ImageSearchFragment.class,
+                ImageSearchResultFragment.class,
+                ImageSearchDetailFragment.class,
+                MessageFragment.class
         },
         includes = {
                 NetworkModule.class

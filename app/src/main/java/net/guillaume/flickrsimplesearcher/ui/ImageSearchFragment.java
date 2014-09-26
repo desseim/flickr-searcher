@@ -1,26 +1,20 @@
 package net.guillaume.flickrsimplesearcher.ui;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.Context;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import com.squareup.picasso.Picasso;
 
 import net.guillaume.flickrsimplesearcher.BaseFragment;
 import net.guillaume.flickrsimplesearcher.R;
@@ -31,7 +25,6 @@ import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import rx.Observer;
@@ -40,24 +33,14 @@ import rx.schedulers.Schedulers;
 
 public class ImageSearchFragment extends BaseFragment {
 
-    private static final String LOG_TAG = ImageSearchFragment.class.getSimpleName();
+    private static final String LOG_TAG                            = ImageSearchFragment.class.getSimpleName();
+    private static final String FRAGMENT_TAG_RESULT                = "ImageSearchFragment.fragment_result";
+    private static final String FRAGMENT_BACKSTACK_TAG_SHOW_DETAIL = "ImageSearchFragment.fragment_backstack_show_detail";
 
     @Inject @ForApplication Resources             mApplicationResources;
     @Inject                 ImageSearchController mImageSearchController;
     @Inject @ForActivity    Bus                   mActivityBus;
-    @Inject                 Picasso               mPicasso;
-
-    @Inject ImageSearchResultAdapter           mImageSearchResultAdapter;
-    @Inject ImageSearchActivityUiActionHandler mUiActionHandler;
-
-    private final MessageViewHelper                                       mMessageViewHelper    = new MessageViewHelper();
-    private final ImageSearchActivityUiActionHandler.UiActionEventVisitor mUiActionEventVisitor = new UiActionEventDispatcher();
-
-    private final ImmutableSet<Integer> mBackgroundViewResourceIds = ImmutableSet.of(
-            R.id.grid_view,
-            R.id.message,
-            R.id.image_detail
-    );
+    @Inject                 FragmentManager       mFragmentManager;
 
     public ImageSearchFragment() {
     }
@@ -73,9 +56,6 @@ public class ImageSearchFragment extends BaseFragment {
         Preconditions.checkNotNull(mActivityBus, "Injection didn't occur yet");
         mActivityBus.register(this);
 
-        if (savedInstanceState != null) mImageSearchResultAdapter.setDataFromBundle(savedInstanceState);
-
-        final Activity activity = getActivity();
         final View rootView = getView();
         Preconditions.checkNotNull(rootView, "Activity root view not set");
 
@@ -83,11 +63,6 @@ public class ImageSearchFragment extends BaseFragment {
         final SearchView searchView = (SearchView) rootView.findViewById(R.id.image_search_view);
         Preconditions.checkNotNull(searchView, "Didn't find search view");
 
-        final SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
-        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(activity.getComponentName());
-        //TODO preconditions on not null otherwise activity isn't searchable
-
-//FIXME remove        searchView.setSearchableInfo(searchableInfo);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(final String query) {
                 searchView.clearFocus();
@@ -104,12 +79,12 @@ public class ImageSearchFragment extends BaseFragment {
 
                             @Override public void onError(final Throwable exception) {
                                 Log.w(LOG_TAG, "Exception on trying to search for images", exception);
-                                mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ImageSearchFailedEvent(exception));
+                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchFailedEvent(exception));
                             }
 
                             @Override public void onNext(final List<ImageData> imageData) {
                                 // this one isn't a UI event, so just use the event bus directly:
-                                mActivityBus.post(new ImageSearchActivityUiActionHandler.ImageSearchNewResultEvent(query, imageData));
+                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchNewResultEvent(query, imageData));
                             }
                         });
 
@@ -121,108 +96,64 @@ public class ImageSearchFragment extends BaseFragment {
             }
         });
 
-        // initialize grid view
-        final GridView gridView = (GridView)rootView.findViewById(R.id.grid_view);
-        Preconditions.checkNotNull(gridView, "Didn't find grid view");
-
-        gridView.setAdapter(mImageSearchResultAdapter);
-
-        final View messageView = rootView.findViewById(R.id.message);
-        Preconditions.checkNotNull(messageView, "Didn't find message view");
         if (savedInstanceState == null) {
             // first start of the app, show an indication message:
-            mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ShowMessageEvent(
-                    MessageViewHelper.MessageType.INFO,
+            mActivityBus.post(new ImageSearchActivityEvents.ShowMessageEvent(
+                    MessageType.INFO,
                     mApplicationResources.getString(R.string.start_search_info)));
         }
     }
 
-    /*package*/ boolean onBackPress() {
-        final View rootView = getView();
-        if (rootView != null) {
-            // only if we're showing an image details, go back to the search results:
-            if (isBackgroundViewShowing(rootView, R.id.image_detail)) {
-                mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ImageSearchResultShowEvent());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override public void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        mImageSearchResultAdapter.saveDataToBundle(outState);
-        mMessageViewHelper.saveMessageViewState(outState);
-    }
-
-    @Subscribe public void onImageSearchNewResult(final ImageSearchActivityUiActionHandler.ImageSearchNewResultEvent newResultEvent) {
+    @Subscribe public void onImageSearchNewResult(final ImageSearchActivityEvents.ImageSearchNewResultEvent newResultEvent) {
         final List<ImageData> results = newResultEvent.getResults();
-        mImageSearchResultAdapter.setData(results);
 
-        if (results.size() > 0) {
-            // then just show the last results:
-            mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ImageSearchResultShowEvent());
-        } else {
-            mUiActionHandler.handleUiActionEvent(new ImageSearchActivityUiActionHandler.ShowMessageEvent(
-                    MessageViewHelper.MessageType.FAILURE,
+        if (results.size() > 0) {  // there are results ; go back to the result fragment and update it, or create one
+            mFragmentManager.popBackStack(FRAGMENT_BACKSTACK_TAG_SHOW_DETAIL, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            ImageSearchResultFragment searchResultFragment = (ImageSearchResultFragment)mFragmentManager.findFragmentByTag(FRAGMENT_TAG_RESULT);
+            if (searchResultFragment == null) {
+                searchResultFragment = ImageSearchResultFragment.create(results);
+
+                final FragmentTransaction showSearchResultFragmentTransaction = mFragmentManager.beginTransaction();
+                showSearchResultFragmentTransaction.replace(R.id.background_fragment, searchResultFragment, FRAGMENT_TAG_RESULT);
+                showSearchResultFragmentTransaction.commit();
+            } else {
+                searchResultFragment.updateResultData(results);
+            }
+        } else {  // no results ; show a message
+            mActivityBus.post(new ImageSearchActivityEvents.ShowMessageEvent(
+                    MessageType.FAILURE,
                     mApplicationResources.getString(R.string.no_result_message, newResultEvent.getQueryString())));
         }
     }
 
-    //XXX unfortunately we have to do this for the @Produce method to be called upon this object registration to the event bus
-    @Subscribe public void onUiActionEvent(final ImageSearchActivityUiActionHandler.UiActionEvent event) {
-        //XXX so we end up having to double dispatch... in the future handling the different event types "manually" rather than with polymorphism may be a good idea
-        event.accept(mUiActionEventVisitor);
+    @Subscribe public void onImageSearchFailed(final ImageSearchActivityEvents.ImageSearchFailedEvent imageSearchFailedEvent) {
+        final Optional<Throwable> exception = imageSearchFailedEvent.getException();
+
+        mActivityBus.post(new ImageSearchActivityEvents.ShowMessageEvent(
+                MessageType.ERROR,
+                exception.isPresent() ? exception.get().getLocalizedMessage() : mApplicationResources.getString(R.string.unknown_error_occurred)));
     }
 
-    private void onShowImageSearchResult(final ImageSearchActivityUiActionHandler.ImageSearchResultShowEvent imageSearchResultShowEvent) {
-        final View rootView = getView();
-        if (rootView != null) {
-            switchBackgroundViewTo(rootView, R.id.grid_view);
-        }
+    @Subscribe public void onShowMessage(final ImageSearchActivityEvents.ShowMessageEvent showMessageEvent) {
+        // first go back to the root of the backstack
+        mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        // then show the message fragment:
+        final MessageFragment newMessageFragment = MessageFragment.create(showMessageEvent.getMessageType(), showMessageEvent.getMessage());
+        mFragmentManager.beginTransaction()
+                        .replace(R.id.background_fragment, newMessageFragment)
+                        .commit();
     }
 
-    private void onImageSearchFailed(final ImageSearchActivityUiActionHandler.ImageSearchFailedEvent imageSearchFailedEvent) {
+    @Subscribe public void onShowImageDetail(final ImageSearchActivityEvents.ImageDetailShowEvent imageDetailShowEvent) {
         final View rootView = getView();
         if (rootView != null) {
-            final View messageView = rootView.findViewById(R.id.message);
-            final Optional<Throwable> exception = imageSearchFailedEvent.getException();
-
-            mMessageViewHelper.updateMessageView(
-                    messageView,
-                    MessageViewHelper.MessageType.ERROR,
-                    exception.isPresent() ? exception.get().getLocalizedMessage() : "Unknown error occurred");
-
-            switchBackgroundViewTo(rootView, R.id.message);
-        }
-    }
-
-    private void onShowMessage(final ImageSearchActivityUiActionHandler.ShowMessageEvent showMessageEvent) {
-        final View rootView = getView();
-        if (rootView != null) {
-            final View messageView = rootView.findViewById(R.id.message);
-            mMessageViewHelper.updateMessageView(
-                    messageView,
-                    showMessageEvent.getMessageType(),
-                    showMessageEvent.getMessage());
-
-            switchBackgroundViewTo(rootView, R.id.message);
-        }
-    }
-
-    private void onShowImageDetail(final ImageSearchActivityUiActionHandler.ImageDetailShowEvent imageDetailShowEvent) {
-        final View rootView = getView();
-        if (rootView != null) {
-            final View imageDetailView = rootView.findViewById(R.id.image_detail);
-            final ImageView imageView = (ImageView)imageDetailView.findViewById(R.id.image);
-            final TextView titleView = (TextView)imageDetailView.findViewById(R.id.title);
-            final ImageData imageData = imageDetailShowEvent.getImageToShow();
-
-            mPicasso.load(imageData.largeUri()).into(imageView);
-            titleView.setText(imageData.title());
-
-            switchBackgroundViewTo(rootView, R.id.image_detail);
+            final Fragment imageDetailFragment = ImageSearchDetailFragment.create(imageDetailShowEvent.getImageToShow());
+            final FragmentTransaction showDetailFragmentTransaction = mFragmentManager.beginTransaction();
+            showDetailFragmentTransaction.replace(R.id.background_fragment, imageDetailFragment, null);
+            showDetailFragmentTransaction.addToBackStack(FRAGMENT_BACKSTACK_TAG_SHOW_DETAIL);
+            showDetailFragmentTransaction.commit();
         }
     }
 
@@ -232,44 +163,4 @@ public class ImageSearchFragment extends BaseFragment {
         super.onDetach();
     }
 
-    /**
-     * In order to keep the search fragment always on top of the background, we just use several overlapping background views
-     * which we show / hide dynamically.
-     * This works here since there's not so much, but more functionality another `Activity` or `Fragment` would be appropriate.
-     * @param viewToSwitchTo the view to show, others will be hidden
-     */
-    protected void switchBackgroundViewTo(final @Nonnull View rootView, final int viewToSwitchTo) {
-        for (final int backgroundViewResourceId : mBackgroundViewResourceIds) {
-            rootView.findViewById(backgroundViewResourceId).setVisibility(viewToSwitchTo == backgroundViewResourceId ? View.VISIBLE : View.GONE);
-        }
-
-        // don't change the search view visibility but make sure it doesn't take focus on other view changes
-        final View searchView = rootView.findViewById(R.id.image_search_view);
-//        searchView.clearFocus();
-    }
-
-    protected boolean isBackgroundViewShowing(final @Nonnull View rootView, final int viewResourceId) {
-        final View view = rootView.findViewById(viewResourceId);
-        return view.getVisibility() == View.VISIBLE;
-    }
-
-
-    private class UiActionEventDispatcher implements ImageSearchActivityUiActionHandler.UiActionEventVisitor {
-        @Override public void visit(final ImageSearchActivityUiActionHandler.ImageSearchFailedEvent imageSearchFailedEvent) {
-            onImageSearchFailed(imageSearchFailedEvent);
-        }
-
-        @Override public void visit(final ImageSearchActivityUiActionHandler.ShowMessageEvent showMessageEvent) {
-            onShowMessage(showMessageEvent);
-        }
-
-        @Override
-        public void visit(final ImageSearchActivityUiActionHandler.ImageSearchResultShowEvent imageSearchResultShowEvent) {
-            onShowImageSearchResult(imageSearchResultShowEvent);
-        }
-
-        @Override public void visit(final ImageSearchActivityUiActionHandler.ImageDetailShowEvent imageDetailShowEvent) {
-            onShowImageDetail(imageDetailShowEvent);
-        }
-    }
 }
