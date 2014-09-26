@@ -29,17 +29,4 @@ import javax.annotation.Nullable;
     @Element     long                             comments;
     @ElementList List<ImageInfoResponseTagEntity> tags;
 
-    /*package*/ ImageInfoData toImageInfoData() {
-        return ImageInfoData.create(
-                id,
-                title,
-                Strings.emptyToNull(description),
-                Lists.transform(tags, new Function<ImageInfoResponseTagEntity, ImageTagData>() {
-                    @Nullable @Override public ImageTagData apply(@Nullable final ImageInfoResponseTagEntity input) {
-                        return input != null ? input.toImageTagData() : null;
-                    }
-                })
-        );
-    }
-
 }

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -22,6 +23,7 @@ import net.guillaume.flickrsimplesearcher.R;
 import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 import net.guillaume.flickrsimplesearcher.data.ImageInfoData;
 import net.guillaume.flickrsimplesearcher.data.ImageTagData;
+import net.guillaume.flickrsimplesearcher.data.LocationData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
 import net.guillaume.flickrsimplesearcher.util.TextViewHelper;
@@ -93,6 +95,7 @@ public class ImageSearchDetailFragment extends BaseFragment {
                     final TextView titleView = (TextView) v.findViewById(R.id.title);
                     final TextView descriptionView = (TextView) v.findViewById(R.id.description);
                     final TextView tagsView = (TextView) v.findViewById(R.id.tags);
+                    final TextView locationView = (TextView) v.findViewById(R.id.location);
 
                     final int maxLines = TextViewHelper.getTextViewMaxLinesCompatible(titleView);
                     final TextUtils.TruncateAt ellipsize = titleView.getEllipsize();
@@ -103,6 +106,8 @@ public class ImageSearchDetailFragment extends BaseFragment {
                     descriptionView.setEllipsize(mPreviousEllipsize);
                     tagsView.setMaxLines(mPreviousMaxLines);
                     tagsView.setEllipsize(mPreviousEllipsize);
+                    locationView.setMaxLines(mPreviousMaxLines);
+                    locationView.setEllipsize(mPreviousEllipsize);
 
                     mPreviousMaxLines = maxLines;
                     mPreviousEllipsize = ellipsize;
@@ -141,9 +146,13 @@ public class ImageSearchDetailFragment extends BaseFragment {
         if (rootView != null) {
             final TextView descriptionView = (TextView) rootView.findViewById(R.id.description);
             final TextView tagsView = (TextView) rootView.findViewById(R.id.tags);
+            final TextView locationView = (TextView) rootView.findViewById(R.id.location);
 
             descriptionView.setText(imageInfoData.description().isPresent() ? imageInfoData.description().get() : "");
             tagsView.setText(formatTagsText(imageInfoData.tags()));
+
+            final Optional<LocationData> imageLocation = imageInfoData.location();
+            if (imageLocation.isPresent()) locationView.setText(imageLocation.get().latitude() + " / " + imageLocation.get().longitude());
         }
     }
 

@@ -21,12 +21,14 @@ public abstract class ImageInfoData implements Parcelable {
             final @Nonnull String id,
             final @Nonnull String title,
             final @Nullable String description,
+            final @Nullable LocationData location,
             final @Nonnull List<ImageTagData> tags
     ) {
         return new AutoParcel_ImageInfoData(
                 id,
                 title,
                 Optional.fromNullable(description),
+                location,
                 tags
         );
     }
@@ -34,9 +36,12 @@ public abstract class ImageInfoData implements Parcelable {
     public abstract String id();
     public abstract String title();
     public abstract Optional<String> description();
+    public abstract @Nullable LocationData locationNullable();
     /*package*/ abstract List<ImageTagData> tagsMutableList();
 
+    public Optional<LocationData> location() { return Optional.fromNullable(locationNullable()); }
     public ImmutableList<ImageTagData> tags() {
         return ImmutableList.copyOf(tagsMutableList());
     }
+
 }
