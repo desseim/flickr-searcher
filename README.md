@@ -3,6 +3,11 @@ flickr-searcher
 
 Simple Android app allowing to search Flickr for pictures, with an option to find pictures taken near the user current place.
 
+## Screenshots
+![screenshot of results of a search](../gh-pages/screenshots/search_skateboarding.png?raw=true "Searching for 'skateboarding'")
+![screenshot of results of a search with location enable](../gh-pages/screenshots/search_skateboarding_location_macba.png?raw=true "Searching for 'skateboarding' matching pictures taken nearby when at Macba")
+![screenshot of showing the detail of a guy doing a kickflip](../gh-pages/screenshots/show_detail_kickflip_warschauer.png?raw=true "Showing the details of a picture")
+
 ## Technologies
 
 It takes advantages of:
