@@ -8,6 +8,15 @@ Simple Android app allowing to search Flickr for pictures, with an option to fin
 ![screenshot of results of a search with location enable](../gh-pages/screenshots/search_skateboarding_location_macba.png?raw=true "Searching for 'skateboarding' matching pictures taken nearby when at Macba")
 ![screenshot of showing the detail of a guy doing a kickflip](../gh-pages/screenshots/show_detail_kickflip_warschauer.png?raw=true "Showing the details of a picture")
 
+## API token
+
+The app communicates with the [Flickr API](https://secure.flickr.com/services/api/) and for this requires a [Flickr API key](https://secure.flickr.com/services/apps/create/).
+So you will need to specify your key to build the app ; you can do so by adding the following line to your `~/.gradle/gradle.properties` file:
+
+    flickrApiKey=your-flickr-api-key
+
+(replacing `your-flickr-api-key` with your actual key).
+
 ## Technologies
 
 It takes advantages of:
