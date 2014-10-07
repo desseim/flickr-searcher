@@ -102,7 +102,7 @@ public class ImageSearchFragment extends LocationAwareBaseFragment {
                     if (suggestionsCursor != null && suggestionsCursor.moveToPosition(position)) {
                         final String query = suggestionsCursor.getString(suggestionsCursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
 
-                        mImageSearchViewController.onImageSearch(searchView, includeLocationView, query, mLastLocation.orNull());
+                        searchView.setQuery(query, true);
 
                         return true;
                     }
