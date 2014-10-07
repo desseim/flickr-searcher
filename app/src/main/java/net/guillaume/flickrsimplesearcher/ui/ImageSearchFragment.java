@@ -3,13 +3,16 @@ package net.guillaume.flickrsimplesearcher.ui;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CursorAdapter;
 import android.widget.SearchView;
 
 import com.google.common.base.Optional;
@@ -24,27 +27,25 @@ import net.guillaume.flickrsimplesearcher.data.ImageBasicData;
 import net.guillaume.flickrsimplesearcher.data.LocationData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
 import net.guillaume.flickrsimplesearcher.inject.ForApplication;
-import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
+import net.guillaume.flickrsimplesearcher.inject.InjectionNames;
 
 import java.util.List;
 
 import javax.inject.Inject;
-
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import javax.inject.Named;
 
 public class ImageSearchFragment extends LocationAwareBaseFragment {
 
-    private static final String LOG_TAG                            = ImageSearchFragment.class.getSimpleName();
     private static final String FRAGMENT_TAG_RESULT                = "ImageSearchFragment.fragment_result";
     private static final String FRAGMENT_BACKSTACK_TAG_SHOW_DETAIL = "ImageSearchFragment.fragment_backstack_show_detail";
 
     @Inject @ForApplication Resources             mApplicationResources;
-    @Inject                 ImageSearchController mImageSearchController;
+    @Inject                 ImageSearchViewController mImageSearchViewController;
     @Inject @ForActivity    Bus                   mActivityBus;
     @Inject @ForApplication Bus                   mApplicationBus;
     @Inject                 FragmentManager       mFragmentManager;
+
+    @Inject @Named(InjectionNames.SEARCH_INFO_IMAGES) SearchableInfo mImageSearchableInfo;
 
     private Optional<LocationData> mLastLocation = Optional.absent();
 
@@ -72,36 +73,40 @@ public class ImageSearchFragment extends LocationAwareBaseFragment {
         final CheckBox includeLocationView = (CheckBox) rootView.findViewById(R.id.location_check);
         Preconditions.checkNotNull(includeLocationView, "Didn't find location check view");
 
+        // setup searchable info (notably wires with the suggestion provider)
+        searchView.setSearchableInfo(mImageSearchableInfo);
+
+        searchView.setQueryRefinementEnabled(true);
+
+        // setup search view listeners to handle searches manually (search processing deferred to the search view controller)
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(final String query) {
-                searchView.clearFocus();
-
-                //TODO handle case with HW keyboards: https://code.google.com/p/android/issues/detail?id=24599
-                final boolean includeLocation = includeLocationView.isChecked();
-                mImageSearchController
-                        .searchImages(query, includeLocation ? mLastLocation.orNull() : null)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<List<ImageBasicData>>() {
-                            @Override public void onCompleted() {
-                                // nothing to do here
-                            }
-
-                            @Override public void onError(final Throwable exception) {
-                                Log.w(LOG_TAG, "Exception on trying to search for images", exception);
-                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchFailedEvent(exception));
-                            }
-
-                            @Override public void onNext(final List<ImageBasicData> imageBasicData) {
-                                // this one isn't a UI event, so just use the event bus directly:
-                                mActivityBus.post(new ImageSearchActivityEvents.ImageSearchNewResultEvent(query, imageBasicData));
-                            }
-                        });
+                mImageSearchViewController.onImageSearch(searchView, includeLocationView, query, mLastLocation.orNull());
 
                 return true;
             }
 
             @Override public boolean onQueryTextChange(final String query) {
+                return false;
+            }
+        });
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override public boolean onSuggestionSelect(final int position) {
+                return false;
+            }
+
+            @Override public boolean onSuggestionClick(final int position) {
+                final CursorAdapter suggestionAdapter = searchView.getSuggestionsAdapter();
+                if (suggestionAdapter != null) {
+                    final Cursor suggestionsCursor = suggestionAdapter.getCursor();
+                    if (suggestionsCursor != null && suggestionsCursor.moveToPosition(position)) {
+                        final String query = suggestionsCursor.getString(suggestionsCursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+
+                        mImageSearchViewController.onImageSearch(searchView, includeLocationView, query, mLastLocation.orNull());
+
+                        return true;
+                    }
+                }
                 return false;
             }
         });

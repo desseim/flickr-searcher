@@ -3,12 +3,14 @@ package net.guillaume.flickrsimplesearcher.inject;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.provider.SearchRecentSuggestions;
 import android.view.LayoutInflater;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
+import net.guillaume.flickrsimplesearcher.model.ImageSearchSuggestionProvider;
 import net.guillaume.flickrsimplesearcher.ui.ImageSearchActivity;
 import net.guillaume.flickrsimplesearcher.ui.ImageSearchDetailFragment;
 import net.guillaume.flickrsimplesearcher.ui.ImageSearchFragment;
@@ -16,6 +18,7 @@ import net.guillaume.flickrsimplesearcher.ui.ImageSearchResultFragment;
 import net.guillaume.flickrsimplesearcher.ui.MessageFragment;
 
 import javax.annotation.Nonnull;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -77,4 +80,9 @@ public class ActivityModule {
     @Provides Picasso provideActivityPicasso(final Activity activity) {
         return Picasso.with(activity);
     }
+
+    @Provides @Named(InjectionNames.SEARCH_INFO_IMAGES) SearchRecentSuggestions provideImageSearchRecentSuggestions(final @ForActivity Context activityContext) {
+        return new SearchRecentSuggestions(activityContext, ImageSearchSuggestionProvider.IMAGE_SEARCH_SUGGESTION_AUTHORITY, ImageSearchSuggestionProvider.IMAGE_SEARCH_SUGGESTION_MODE);
+    }
+
 }

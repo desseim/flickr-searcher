@@ -1,6 +1,9 @@
 package net.guillaume.flickrsimplesearcher.inject;
 
 import android.app.Application;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.location.LocationManager;
@@ -9,7 +12,9 @@ import com.squareup.otto.Bus;
 
 import net.guillaume.flickrsimplesearcher.BuildConfig;
 import net.guillaume.flickrsimplesearcher.LocationListener;
+import net.guillaume.flickrsimplesearcher.ui.ImageSearchActivity;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -24,7 +29,8 @@ import retrofit.converter.SimpleXMLConverter;
         library = true)
 public class ApplicationModule {
 
-    private static final String FLICKR_API_REST_ENDPOINT = "https://api.flickr.com/services/rest/";
+    private static final String FLICKR_API_REST_ENDPOINT   = "https://api.flickr.com/services/rest/";
+    private static final Class  IMAGE_SEARCHABLE_COMPONENT = ImageSearchActivity.class;
 
     private final Application mApplication;
 
@@ -43,7 +49,11 @@ public class ApplicationModule {
     @Provides @Singleton @ForApplication Bus provideApplicationBus() { return new Bus(); }
 
     @Provides LocationManager provideLocationManager(final Application application) {
-        return (LocationManager)application.getSystemService(Context.LOCATION_SERVICE);
+        return (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @Provides SearchManager provideSearchManager(final Application application) {
+        return (SearchManager) application.getSystemService(Context.SEARCH_SERVICE);
     }
 
     @Provides @Singleton RestAdapter provideRestAdapter() {
@@ -56,6 +66,11 @@ public class ApplicationModule {
 
     @Provides @ForApplication Resources provideApplicationResources() {
         return mApplication.getResources();
+    }
+
+    @Provides @Named(InjectionNames.SEARCH_INFO_IMAGES) SearchableInfo provideSearchImagesSearchInfo(final @ForApplication Context applicationContext, final SearchManager searchManager) {
+        final ComponentName searchableComponentName = new ComponentName(applicationContext, IMAGE_SEARCHABLE_COMPONENT);
+        return searchManager.getSearchableInfo(searchableComponentName);
     }
 
     private RestAdapter.LogLevel getAppropriateLogLevel() {

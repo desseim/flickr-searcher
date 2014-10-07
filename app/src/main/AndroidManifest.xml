@@ -25,6 +25,9 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/image_searchable" />
         </activity>
+        <provider android:name=".model.ImageSearchSuggestionProvider"
+                  android:authorities="net.guillaume.flickrsimplesearcher.ImageSearchSuggestionProvider"
+                  android:exported="false"/>
     </application>
 
 </manifest>
