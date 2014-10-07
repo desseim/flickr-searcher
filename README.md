@@ -81,3 +81,12 @@ public static FragmentZ extends Fragment {
 The caveat is that one must be cautious about not leaking the `Activity` by scoping as "activity-singleton" an object which holds a reference to it 
 (it would actually leak the first instance of the activity in this case).
 Those should be dynamically provided upon each injection request.
+
+## Roadmap
+
+This is currently a very simple list of things to explore in the future.
+
+- [ ] re-trigger search on "search near current location" option check / uncheck
+- [ ] provide visual feedback (spinning wheel ?) while performing search
+- [ ] hide search bar as well in detail view / full screen mode (triggered by a tap on the image)
+  - [ ] use animations when switching between full-screen modes
