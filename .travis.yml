@@ -23,3 +23,7 @@ android:
 #    - sys-img-armeabi-v7a-android-19
 #    - sys-img-x86-android-17
 
+before_install:
+- openssl aes-256-cbc -K $encrypted_89d8acd2cb98_key -iv $encrypted_89d8acd2cb98_iv
+  -in ./app/gradle.properties.enc -out ./app/gradle.properties -d
+
