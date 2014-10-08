@@ -11,7 +11,7 @@ Simple Android app allowing to search Flickr for pictures, with an option to fin
 ## API token
 
 The app communicates with the [Flickr API](https://secure.flickr.com/services/api/) and for this requires a [Flickr API key](https://secure.flickr.com/services/apps/create/).
-So you will need to specify your key to build the app ; you can do so by adding the following line to your `~/.gradle/gradle.properties` file:
+So you will need to specify your key to build the app ; you can do so by adding the following line to your `~/.gradle/gradle.properties` file (or to the one of the repository i.e. `app/gradle.properties`):
 
     flickrApiKey=your-flickr-api-key
 
