@@ -7,4 +7,6 @@
     <string name="search_near_me">seulement prises près d\'ici</string>
     <string name="start_search_info">↑ Cherchez des images</string>
     <string name="unknown_error_occurred">Une erreur inconnue est survenue</string>
+    <string name="image_default_description">Image</string>
+    <string name="image_thumbnail_default_description">Vignette</string>
 </resources>

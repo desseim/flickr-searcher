@@ -1,5 +1,6 @@
 package net.guillaume.flickrsimplesearcher.util;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.widget.GridView;
 
@@ -7,6 +8,7 @@ import java.lang.reflect.Field;
 
 public class GridViewHelper {
 
+    @TargetApi(16)  // since we conditionally check for API method availability
     public static int getGridViewColumnWidthCompatible(final GridView gridView) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             return gridView.getColumnWidth();

@@ -1,5 +1,6 @@
 package net.guillaume.flickrsimplesearcher.util;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
 import android.widget.GridView;
@@ -12,6 +13,7 @@ public class TextViewHelper {
     private static final int IMPL_LINES = 1;
     private static final String LOG_TAG = TextViewHelper.class.getSimpleName();
 
+    @TargetApi(16)  // since we conditionally check for API method availability
     public static int getTextViewMaxLinesCompatible(final TextView textView) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             return textView.getMaxLines();
