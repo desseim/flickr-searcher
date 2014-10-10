@@ -1,7 +1,8 @@
-flickr-searcher
+flickr-searcher [![Build Status](https://travis-ci.org/desseim/flickr-searcher.svg?branch=master)](https://travis-ci.org/desseim/flickr-searcher)
 ===============
 
 Simple Android app allowing to search Flickr for pictures, with an option to find pictures taken near the user current place.
+
 
 ## Screenshots
 ![screenshot of results of a search](../gh-pages/screenshots/search_skateboarding.png?raw=true "Searching for 'skateboarding'")
