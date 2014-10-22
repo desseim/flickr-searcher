@@ -13,7 +13,8 @@
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar" >
         <activity
             android:name=".ui.ImageSearchActivity"
-            android:label="@string/title_activity_image_search_result" >
+            android:label="@string/title_activity_image_search_result"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
