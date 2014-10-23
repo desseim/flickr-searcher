@@ -3,8 +3,8 @@ package net.guillaume.flickrsimplesearcher.inject;
 import android.content.res.Resources;
 
 import net.guillaume.flickrsimplesearcher.R;
-import net.guillaume.flickrsimplesearcher.rest.FlickrService;
-import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
+import net.guillaume.flickrsimplesearcher.rest.flickr.FlickrImageSearchController;
+import net.guillaume.flickrsimplesearcher.rest.flickr.FlickrService;
 
 import javax.inject.Named;
 
@@ -13,7 +13,7 @@ import dagger.Provides;
 import retrofit.RestAdapter;
 
 @Module(injects = {
-        ImageSearchController.class
+        FlickrImageSearchController.class
 },
         addsTo = ApplicationModule.class)
 public class NetworkModule {

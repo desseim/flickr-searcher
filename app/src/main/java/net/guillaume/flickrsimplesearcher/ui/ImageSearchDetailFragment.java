@@ -25,7 +25,7 @@ import net.guillaume.flickrsimplesearcher.data.ImageInfoData;
 import net.guillaume.flickrsimplesearcher.data.ImageTagData;
 import net.guillaume.flickrsimplesearcher.data.LocationData;
 import net.guillaume.flickrsimplesearcher.inject.ForActivity;
-import net.guillaume.flickrsimplesearcher.rest.ImageSearchController;
+import net.guillaume.flickrsimplesearcher.rest.flickr.FlickrImageSearchController;
 import net.guillaume.flickrsimplesearcher.util.TextViewHelper;
 
 import java.util.Collection;
@@ -38,14 +38,14 @@ import rx.schedulers.Schedulers;
 
 public class ImageSearchDetailFragment extends BaseFragment {
 
-    private static final String LOG_TAG                 = ImageSearchDetailFragment.class.getSimpleName();
+    private static final String LOG_TAG = ImageSearchDetailFragment.class.getSimpleName();
 
     private static final String ARGUMENT_KEY_IMAGE_DATA = "ImageSearchDetailFragment.image_data";
     private static final String ARGUMENT_KEY_IMAGE_INFO = "ImageSearchDetailFragment.image_info";
 
-    @Inject @ForActivity Bus                   mBus;
-    @Inject              Picasso               mPicasso;
-    @Inject              ImageSearchController mImageSearchController;
+    @Inject @ForActivity Bus                         mBus;
+    @Inject              Picasso                     mPicasso;
+    @Inject              FlickrImageSearchController mFlickrImageSearchController;
 
     public static ImageSearchDetailFragment create(final ImageBasicData imageBasicData) {
         final ImageSearchDetailFragment imageSearchDetailFragment = new ImageSearchDetailFragment();
@@ -119,7 +119,7 @@ public class ImageSearchDetailFragment extends BaseFragment {
                 updateViewWithImageInfo(imageInfoData);
             } else {
                 // we don't have the info yet, retrieve them:
-                mImageSearchController
+                mFlickrImageSearchController
                         .getImageInfo(imageBasicData.id())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

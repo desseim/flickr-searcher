@@ -5,9 +5,11 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.LocationManager;
 
+import com.google.gson.Gson;
 import com.squareup.otto.Bus;
 
 import net.guillaume.flickrsimplesearcher.BuildConfig;
@@ -31,6 +33,7 @@ public class ApplicationModule {
 
     private static final String FLICKR_API_REST_ENDPOINT   = "https://api.flickr.com/services/rest/";
     private static final Class  IMAGE_SEARCHABLE_COMPONENT = ImageSearchActivity.class;
+    private static final String PREFERENCES_SEARCH_SETTINGS_FILE_NAME = "search_settings";
 
     private final Application mApplication;
 
@@ -47,6 +50,10 @@ public class ApplicationModule {
     }
 
     @Provides @Singleton @ForApplication Bus provideApplicationBus() { return new Bus(); }
+
+    @Provides Gson provideDefaultGson() {
+        return new Gson();
+    }
 
     @Provides LocationManager provideLocationManager(final Application application) {
         return (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
@@ -66,6 +73,10 @@ public class ApplicationModule {
 
     @Provides @ForApplication Resources provideApplicationResources() {
         return mApplication.getResources();
+    }
+
+    @Provides @Named(InjectionNames.PREFERENCES_SEARCH_SETTINGS) SharedPreferences provideSearchSettingsPreferences(final @ForApplication Context applicationContext) {
+        return applicationContext.getSharedPreferences(PREFERENCES_SEARCH_SETTINGS_FILE_NAME, Context.MODE_PRIVATE);
     }
 
     @Provides @Named(InjectionNames.SEARCH_INFO_IMAGES) SearchableInfo provideSearchImagesSearchInfo(final @ForApplication Context applicationContext, final SearchManager searchManager) {

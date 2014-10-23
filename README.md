@@ -87,7 +87,7 @@ Those should be dynamically provided upon each injection request.
 
 This is currently a very simple list of things to explore in the future.
 
-- [ ] re-trigger search on "search near current location" option check / uncheck
 - [ ] provide visual feedback (spinning wheel ?) while performing search
 - [ ] hide search bar as well in detail view / full screen mode (triggered by a tap on the image)
   - [ ] use animations when switching between full-screen modes
+- [x] re-trigger search on "search near current location" option check / uncheck

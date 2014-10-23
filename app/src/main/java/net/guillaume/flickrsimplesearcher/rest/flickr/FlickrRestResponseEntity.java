@@ -1,4 +1,4 @@
-package net.guillaume.flickrsimplesearcher.rest;
+package net.guillaume.flickrsimplesearcher.rest.flickr;
 
 public interface FlickrRestResponseEntity {
 

@@ -1,4 +1,4 @@
-package net.guillaume.flickrsimplesearcher.rest;
+package net.guillaume.flickrsimplesearcher.rest.flickr;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -22,7 +22,7 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
-public class ImageSearchController {
+public class FlickrImageSearchController {
 
     private static final int API_ERROR_CODE_NO_LOCATION      = 2;
     private static final int API_ERROR_CODE_INVALID_API_KEY  = 100;

@@ -1,4 +1,4 @@
-package net.guillaume.flickrsimplesearcher.rest;
+package net.guillaume.flickrsimplesearcher.rest.flickr;
 
 import net.guillaume.flickrsimplesearcher.data.LocationData;
 

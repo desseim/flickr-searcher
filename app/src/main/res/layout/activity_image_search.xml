@@ -9,5 +9,5 @@
         android:layout_height="match_parent"
         android:name="net.guillaume.flickrsimplesearcher.ui.ImageSearchFragment"
         android:id="@+id/image_search_fragment"
-        tools:layout="@layout/fragment_image_search_result" />
+        tools:layout="@layout/fragment_image_search_results" />
 </merge>
