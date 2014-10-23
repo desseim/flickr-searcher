@@ -1,6 +1,7 @@
 # IDE
 /.idea/workspace.xml
 /.idea/libraries
+/.idea/dictionaries
 
 # Mac OS
 .DS_Store
