@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:iconifiedByDefault="false"
-            android:focusable="false">
+            android:focusable="false"
+            android:focusableInTouchMode="false">
         </SearchView>
         <CheckBox
             android:id="@+id/location_check"
