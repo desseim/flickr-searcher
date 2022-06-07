@@ -87,7 +87,7 @@ public class BaseActivity extends Activity {
         }
 
         public synchronized @Nonnull ObjectGraph getActivityObjectGraph() {
-            Preconditions.checkNotNull(mActivityObjectGraph, "Trying to retrieve the activity object graph before it has been initialized ; be sure to cal init() before");
+            Preconditions.checkNotNull(mActivityObjectGraph, "Trying to retrieve the activity object graph before it has been initialized ; be sure to call init() before");
             return mActivityObjectGraph;
         }
 
