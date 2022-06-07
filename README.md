@@ -1,6 +1,10 @@
 flickr-searcher [![Build Status](https://travis-ci.org/desseim/flickr-searcher.svg?branch=master)](https://travis-ci.org/desseim/flickr-searcher)
 ===============
 
+:bulb: *This app demonstrated a few good practices to architect an Android app in 2014. Although it has been updated to build in Android Studio Chipmunk, some / most of its concept have since then been made obsolete, mostly by advances in the official Android development environment. Nevertheless, some of the architectural concepts it adresses are still relevant and can be of interest to a modern application, despite some of its external libraries and tools, or their versions, being now deprecated.*
+
+:warning: Due to this app still implementing the "old" permission mechanism, on modern devices after installation the user must manually give the app location permission from the device settings before being able to run the app.
+
 Simple Android app allowing to search Flickr for pictures, with an option to find pictures taken near the user current place.
 
 
