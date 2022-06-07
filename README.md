@@ -52,7 +52,7 @@ For example, one can:
 ```java
 public static ActivityA extends Activity {
 
-  @Inject @ForActivity Bus mAcivityBus;
+  @Inject @ForActivity Bus mActivityBus;
 
   // instance injection, registration to the bus etc...
 
